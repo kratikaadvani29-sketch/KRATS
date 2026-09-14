@@ -121,10 +121,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   transition: transform 0.09s ease-out;
 }
 @media (hover: hover) and (pointer: fine) { .cursor-you { display: flex; } }
-.cursor-you__dot { width: 10px; height: 10px; border-radius: 999px; background: var(--ink); margin-top: 2px; }
+/* white + difference blend -> the label/dot invert against whatever is behind:
+   black over white bg, blue over yellow, teal over pink, etc. (dual-colour) */
+.cursor-you { mix-blend-mode: difference; }
+.cursor-you__dot { width: 12px; height: 12px; border-radius: 999px; background: #fff; margin-top: 2px; }
 .cursor-you__label {
-  background: var(--ink); color: #fff; font-family: var(--font-mono);
-  font-size: 11px; padding: 3px 8px; border-radius: 999px;
+  background: #fff; color: #000; font-family: var(--font-mono);
+  font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 700;
 }
 
 .float { position: absolute; pointer-events: none; }
@@ -443,6 +446,30 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
   padding: 3px 9px; border-radius: 999px; white-space: nowrap;
 }
+
+/* ============================================================
+   MARQUEE SELECTION (dual-colour, difference blend)
+   A collaborator drags a box over an element; the fill is white with
+   mix-blend-mode:difference, so everything behind it inverts.
+   ============================================================ */
+/* both layers share this geometry + transition */
+.selxn, .selxn-ui {
+  position: fixed; z-index: 56; pointer-events: none; left: 0; top: 0; width: 0; height: 0; opacity: 0;
+  transition: left .55s cubic-bezier(.4,0,.2,1), top .55s cubic-bezier(.4,0,.2,1),
+    width .55s cubic-bezier(.4,0,.2,1), height .55s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+}
+.selxn.is-on, .selxn-ui.is-on { opacity: 1; }
+/* the fill is its OWN fixed element so difference blends against the page,
+   not just against a wrapper's stacking context */
+.selxn { background: #fff; mix-blend-mode: difference; border-radius: 2px; }
+.selxn-ui { z-index: 57; }
+.selxn-ui .selxn__frame { position: absolute; inset: 0; outline: 2px solid var(--hue, #35c1f0); border-radius: 2px; }
+.selxn-ui .selxn__h { position: absolute; width: 11px; height: 11px; background: #fff; border: 2px solid var(--hue, #35c1f0); border-radius: 2px; }
+.selxn-ui .selxn__h.tl { left: -6px; top: -6px; } .selxn-ui .selxn__h.tr { right: -6px; top: -6px; }
+.selxn-ui .selxn__h.bl { left: -6px; bottom: -6px; } .selxn-ui .selxn__h.br { right: -6px; bottom: -6px; }
+.selxn-ui .selxn__label { position: absolute; left: -2px; bottom: -26px;
+  background: var(--hue, #35c1f0); color: #fff; font-family: var(--font-mono); font-size: 11px;
+  padding: 3px 9px; border-radius: 5px; white-space: nowrap; }
 
 /* ============================================================
    SCROLL REVEALS
