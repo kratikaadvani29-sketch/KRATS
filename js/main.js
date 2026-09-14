@@ -159,7 +159,7 @@ function renderProjects(projects) {
             </div>
             ${subtags ? `<div class="pcard__subtags">${subtags}</div>` : ""}
           </div>
-          <div class="pcard__media" data-selectable>
+          <div class="pcard__media">
             <span class="pcard__imgtag"><b>JPG</b> IMAGE.JPG</span>
             <span class="handle handle--tl"></span><span class="handle handle--tr"></span>
             <span class="handle handle--bl"></span><span class="handle handle--br"></span>
@@ -227,55 +227,6 @@ function startCollaborators() {
   });
 }
 
-/* ---------- Marquee selection (dual-colour difference blend) ----------
-   A collaborator drags a selection box over an element; the box's fill is
-   white + mix-blend-mode:difference, so the content behind it inverts. */
-function startSelector() {
-  if (prefersReduced) return;
-  const fill = document.createElement("div");
-  fill.className = "selxn";
-  const ui = document.createElement("div");
-  ui.className = "selxn-ui";
-  ui.innerHTML = `<div class="selxn__frame"></div>
-    <span class="selxn__h tl"></span><span class="selxn__h tr"></span>
-    <span class="selxn__h bl"></span><span class="selxn__h br"></span>
-    <span class="selxn__label"></span>`;
-  document.body.append(fill, ui);
-  const label = ui.querySelector(".selxn__label");
-  const names = SITE.collaborators || ["EM", "PH"];
-  const hues = ["#e6285e", "#7b61ff"];
-  let k = 0;
-
-  const setRect = (l, t, w, h) => {
-    [fill, ui].forEach((el) => { el.style.left = l + "px"; el.style.top = t + "px"; el.style.width = w + "px"; el.style.height = h + "px"; });
-  };
-
-  const cycle = () => {
-    const targets = $$("[data-selectable]").filter((el) => {
-      const r = el.getBoundingClientRect();
-      return r.width > 60 && r.height > 30 && r.top > 70 && r.bottom < window.innerHeight - 16;
-    });
-    if (!targets.length) { setTimeout(cycle, 1400); return; }
-    const el = targets[Math.floor(Math.random() * targets.length)];
-    const r = el.getBoundingClientRect();
-    const pad = 8;
-    const hue = hues[k % hues.length];
-    ui.style.setProperty("--hue", hue);
-    label.textContent = names[k % names.length];
-    k++;
-    // collapse to the element's top-left, then grow to enclose it (drag feel)
-    [fill, ui].forEach((e) => (e.style.transition = "none"));
-    setRect(r.left - pad, r.top - pad, 0, 0);
-    fill.classList.add("is-on"); ui.classList.add("is-on");
-    void fill.offsetWidth; // reflow
-    [fill, ui].forEach((e) => (e.style.transition = ""));
-    setRect(r.left - pad, r.top - pad, r.width + pad * 2, r.height + pad * 2);
-    setTimeout(() => { fill.classList.remove("is-on"); ui.classList.remove("is-on"); }, 2200);
-    setTimeout(cycle, 3200 + Math.random() * 2600);
-  };
-  setTimeout(cycle, 2700); // begin after the intro settles
-}
-
 /* ---------- Intro: "Hey there!!" load sequence ---------- */
 function startIntro() {
   const intro = $(".intro");
@@ -332,7 +283,6 @@ document.addEventListener("DOMContentLoaded", () => {
   startClock();
   startCursor();
   startCollaborators();
-  startSelector();
   startIntro();
   startReveals();
   startScrollSpy();
