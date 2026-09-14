@@ -48,7 +48,15 @@
     </div>
   </header>
 
-  <!-- Live cursor labels (decorative) -->
+  <!-- Intro load sequence -->
+  <div class="intro" aria-hidden="true">
+    <div class="intro__bubble"><span></span></div>
+  </div>
+
+  <!-- Autonomous collaborator cursors -->
+  <div class="collab-cursors" aria-hidden="true"></div>
+
+  <!-- "YOU" cursor follows the real mouse -->
   <div class="cursor-you" aria-hidden="true">
     <span class="cursor-you__dot"></span>
     <span class="cursor-you__label">YOU</span>
@@ -102,7 +110,7 @@
         <span class="handle handle--br"></span>
       </div>
 
-      <p class="about__lede" data-about></p>
+      <p class="about__lede" data-about data-reveal></p>
 
       <figure class="polaroid polaroid--left">
         <span class="polaroid__img"></span>
@@ -113,23 +121,22 @@
         <figcaption class="scribble" data-photo-2-cap>my workspace</figcaption>
       </figure>
 
-      <ul class="skills" data-skills aria-label="Skills"></ul>
+      <ul class="skills" data-skills data-reveal aria-label="Skills"></ul>
     </section>
 
-    <!-- ===================== FEATURED WORK ===================== -->
+    <!-- ===================== FEATURED WORK (stacked cards) ===================== -->
     <section class="work" id="work">
-      <p class="scribble work__eyebrow">explore my work!</p>
-      <h2 class="display work__title">FEATURED</h2>
-
-      <div class="folder">
-        <div class="folder__tabs" role="tablist" data-project-tabs></div>
-        <div class="folder__body" data-project-body></div>
+      <div class="work__intro" data-reveal>
+        <p class="scribble work__eyebrow">explore my work!</p>
+        <h2 class="display work__title">FEATURED</h2>
+        <div class="tag tag--speech work__note">This is a showcase of what happens when curiosity drives the process.</div>
       </div>
+      <div class="work__stack" data-project-stack></div>
     </section>
 
     <!-- ===================== LET'S TALK / CONTACT ===================== -->
     <section class="talk" id="contact">
-      <div class="talk__top">
+      <div class="talk__top" data-reveal>
         <div class="blob" aria-hidden="true">
           <svg viewBox="0 0 200 200" width="100%" height="100%"><path fill="#2aa676" stroke="#111" stroke-width="4" d="M100 20c14 0 22 12 30 20s20 16 20 30-12 22-20 30-16 20-30 20-22-12-30-20-20-16-20-30 12-22 20-30 16-20 30-20z"/></svg>
           <span class="blob__eyes"></span>
@@ -140,7 +147,7 @@
         </div>
       </div>
 
-      <div class="comment-card">
+      <div class="comment-card" data-reveal>
         <div class="comment-card__head">Comment</div>
         <div class="comment-card__row">
           <span class="avatar avatar--comment" data-initials-1></span>
@@ -152,7 +159,7 @@
         </div>
       </div>
 
-      <div class="contact-banner" id="playground">
+      <div class="contact-banner" id="playground" data-reveal>
         <a class="contact-banner__btn" data-contact-link href="#">
           <span class="ico" aria-hidden="true">»</span>
           CONTACT
