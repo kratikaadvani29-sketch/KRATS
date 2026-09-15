@@ -472,6 +472,34 @@ ul { margin: 0; padding: 0; list-style: none; }
   padding: 3px 9px; border-radius: 5px; white-space: nowrap; }
 
 /* ============================================================
+   HOVER INVERT BOX (follows cursor inside the name zone)
+   ------------------------------------------------------------
+   A square that travels with the cursor while it is over the
+   hero name. The fill is white + mix-blend-mode:difference, so
+   everything behind it inverts (black over the light canvas,
+   flipping the name's black letters to white). Black corner
+   handles echo a design-canvas selection box.
+   ============================================================ */
+.hovbox, .hovbox-ui {
+  position: fixed; z-index: 56; pointer-events: none;
+  left: 0; top: 0; width: 0; height: 0; opacity: 0;
+  transition: opacity .18s ease; will-change: transform;
+}
+.hovbox.is-on, .hovbox-ui.is-on { opacity: 1; }
+/* the fill is its OWN fixed element so difference blends against
+   the whole page, not just a wrapper's stacking context */
+.hovbox { background: #fff; mix-blend-mode: difference; border-radius: 2px; }
+.hovbox-ui { z-index: 57; }
+.hovbox-ui .hovbox__h {
+  position: absolute; width: 14px; height: 14px;
+  background: var(--ink); border-radius: 2px;
+}
+.hovbox-ui .hovbox__h.tl { left: -7px; top: -7px; }
+.hovbox-ui .hovbox__h.tr { right: -7px; top: -7px; }
+.hovbox-ui .hovbox__h.bl { left: -7px; bottom: -7px; }
+.hovbox-ui .hovbox__h.br { right: -7px; bottom: -7px; }
+
+/* ============================================================
    SCROLL REVEALS
    ============================================================ */
 [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.2,.7,.2,1); }

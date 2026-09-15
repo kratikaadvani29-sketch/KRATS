@@ -227,6 +227,61 @@ function startCollaborators() {
   });
 }
 
+/* ---------- Hover invert box (follows cursor inside the name zone) ----------
+   While the cursor is over the hero name, a square follows it and inverts
+   the content behind it (white fill + mix-blend-mode:difference). It shows
+   only inside the zone and hides the moment the cursor leaves. */
+function startHoverBox() {
+  if (prefersReduced) return;
+  if (window.matchMedia("(hover: none)").matches) return; // skip touch devices
+  const zone = $("[data-hoverbox]");
+  if (!zone) return;
+
+  const fill = document.createElement("div");
+  fill.className = "hovbox";
+  const ui = document.createElement("div");
+  ui.className = "hovbox-ui";
+  ui.innerHTML = `<span class="hovbox__h tl"></span><span class="hovbox__h tr"></span>
+    <span class="hovbox__h bl"></span><span class="hovbox__h br"></span>`;
+  document.body.append(fill, ui);
+
+  const PAD = 16;          // how close counts as "in the zone"
+  let inside = false, side = 300;
+  let x = 0, y = 0, tx = 0, ty = 0, seeded = false;
+
+  const sizeBox = () => {
+    const r = zone.getBoundingClientRect();
+    side = Math.max(160, Math.min(r.height * 0.95, 360));
+    [fill, ui].forEach((el) => { el.style.width = side + "px"; el.style.height = side + "px"; });
+  };
+
+  const within = (px, py) => {
+    const r = zone.getBoundingClientRect();
+    return px >= r.left - PAD && px <= r.right + PAD && py >= r.top - PAD && py <= r.bottom + PAD;
+  };
+
+  const show = () => { inside = true; sizeBox(); fill.classList.add("is-on"); ui.classList.add("is-on"); };
+  const hide = () => { inside = false; fill.classList.remove("is-on"); ui.classList.remove("is-on"); };
+
+  window.addEventListener("mousemove", (e) => {
+    tx = e.clientX; ty = e.clientY;
+    if (!seeded) { x = tx; y = ty; seeded = true; }
+    const now = within(tx, ty);
+    if (now && !inside) { x = tx; y = ty; show(); }   // snap to cursor on entry
+    else if (!now && inside) hide();
+  });
+  // hide if the pointer leaves the window entirely
+  document.addEventListener("mouseleave", hide);
+
+  const loop = () => {
+    x += (tx - x) * 0.25; y += (ty - y) * 0.25;       // gentle trailing follow
+    const tf = `translate(${x - side / 2}px, ${y - side / 2}px)`;
+    fill.style.transform = tf; ui.style.transform = tf;
+    requestAnimationFrame(loop);
+  };
+  loop();
+}
+
 /* ---------- Intro: "Hey there!!" load sequence ---------- */
 function startIntro() {
   const intro = $(".intro");
@@ -283,6 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startClock();
   startCursor();
   startCollaborators();
+  startHoverBox();
   startIntro();
   startReveals();
   startScrollSpy();
