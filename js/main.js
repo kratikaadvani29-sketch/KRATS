@@ -8,7 +8,7 @@
 
 const SITE = {
   // ---------- Identity ----------
-  name: "YOUR NAME",              // big hero name (shown UPPERCASE)
+  name: "Kratika",                // big hero name (shown UPPERCASE)
   role: "PRODUCT DESIGNER",       // yellow pill badge
   location: "CITY, ST",           // pink location tag
   availability: "AVAILABLE FOR THOUGHTFUL PROJECTS",
