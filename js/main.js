@@ -248,6 +248,7 @@ function startHoverBox() {
   const PAD = 16;          // how close counts as "in the zone"
   let inside = false, side = 300;
   let x = 0, y = 0, tx = 0, ty = 0, seeded = false;
+  let s = 0, ts = 0;       // current / target scale (grow from cursor center)
 
   const sizeBox = () => {
     const r = zone.getBoundingClientRect();
@@ -260,14 +261,21 @@ function startHoverBox() {
     return px >= r.left - PAD && px <= r.right + PAD && py >= r.top - PAD && py <= r.bottom + PAD;
   };
 
-  const show = () => { inside = true; sizeBox(); fill.classList.add("is-on"); ui.classList.add("is-on"); };
-  const hide = () => { inside = false; fill.classList.remove("is-on"); ui.classList.remove("is-on"); };
+  const show = () => {
+    inside = true; sizeBox();
+    x = tx; y = ty; s = 0; ts = 1;                     // collapse at cursor, then grow
+    fill.classList.add("is-on"); ui.classList.add("is-on");
+  };
+  const hide = () => {
+    inside = false; ts = 0;                            // shrink back into the cursor
+    fill.classList.remove("is-on"); ui.classList.remove("is-on");
+  };
 
   window.addEventListener("mousemove", (e) => {
     tx = e.clientX; ty = e.clientY;
     if (!seeded) { x = tx; y = ty; seeded = true; }
     const now = within(tx, ty);
-    if (now && !inside) { x = tx; y = ty; show(); }   // snap to cursor on entry
+    if (now && !inside) show();
     else if (!now && inside) hide();
   });
   // hide if the pointer leaves the window entirely
@@ -275,7 +283,9 @@ function startHoverBox() {
 
   const loop = () => {
     x += (tx - x) * 0.25; y += (ty - y) * 0.25;       // gentle trailing follow
-    const tf = `translate(${x - side / 2}px, ${y - side / 2}px)`;
+    s += (ts - s) * 0.2;                               // smooth open / close
+    // scale grows from the box centre, which sits on the cursor
+    const tf = `translate(${x - side / 2}px, ${y - side / 2}px) scale(${s})`;
     fill.style.transform = tf; ui.style.transform = tf;
     requestAnimationFrame(loop);
   };
