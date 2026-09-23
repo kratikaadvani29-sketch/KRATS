@@ -13,9 +13,11 @@ const SITE = {
   headingRight: 'KRATIKA',
 
   // Your photo for the centre card (shown in black & white).
-  // portraitFocus nudges the crop: [x%, y%, zoom%]
+  // portraitFocus is the crop inside the card: [x%, y%, zoom%]
+  // portraitIntroY moves the photo up/down on the full-screen intro (higher % = face sits higher)
   portrait: 'images/portrait.jpg',
-  portraitFocus: [57, 56, 250],
+  portraitFocus: [57, 56, 200],
+  portraitIntroY: 68,
 
   // Each entry is one line in the bottom-left block
   role: ['DIGITAL DESIGNER', 'BUILDING VISUAL SYSTEMS', 'FOR MODERN BRANDS'],
@@ -207,7 +209,7 @@ async function intro() {
   const [fx, fy, zoom] = SITE.portraitFocus || [50, 50, 100];
   const ratio = await imageRatio(SITE.portrait); // width / height
   const coverPct = Math.max(100, (innerHeight / innerWidth) * ratio * 100);
-  const bgStart = { backgroundSize: `${coverPct}% auto`, backgroundPosition: `50% ${fy}%` };
+  const bgStart = { backgroundSize: `${coverPct}% auto`, backgroundPosition: `50% ${SITE.portraitIntroY ?? fy}%` };
   const bgEnd = { backgroundSize: `${zoom}% auto`, backgroundPosition: `${fx}% ${fy}%` };
   Object.assign(portrait.style, { top: '0px', left: '0px', width: '100vw', height: '100vh' }, SITE.portrait ? bgStart : {});
   portrait.classList.add('is-intro');
