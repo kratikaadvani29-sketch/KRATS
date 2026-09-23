@@ -8,8 +8,14 @@ const SITE = {
   lastName: 'ADVANI',
   logo: 'K–A',
 
-  // Your photo for the centre card, e.g. 'images/portrait.jpg' (shown in black & white)
-  portrait: '',
+  // The giant heading, split either side of the photo
+  headingLeft: "HEY I'M",
+  headingRight: 'KRATIKA',
+
+  // Your photo for the centre card (shown in black & white).
+  // portraitFocus nudges the crop: [x%, y%, zoom%]
+  portrait: 'images/portrait.jpg',
+  portraitFocus: [57, 56, 250],
 
   // Each entry is one line in the bottom-left block
   role: ['DIGITAL DESIGNER', 'BUILDING VISUAL SYSTEMS', 'FOR MODERN BRANDS'],
@@ -71,11 +77,21 @@ function splitChars(el, text, baseDelay, step) {
 
 function render() {
   document.title = `${cap(SITE.firstName)} ${cap(SITE.lastName)} — Designer`;
-  if (SITE.portrait) $('.lp-portrait').style.backgroundImage = `url('${SITE.portrait}')`;
+  if (SITE.portrait) {
+    const [x, y, zoom] = SITE.portraitFocus || [50, 50, 100];
+    Object.assign($('.lp-portrait').style, {
+      backgroundImage: `url('${SITE.portrait}')`,
+      backgroundPosition: `${x}% ${y}%`,
+      backgroundSize: `${zoom}% auto`,
+    });
+  }
   $('[data-logo]').innerHTML = `${SITE.logo}<sup>®</sup>`;
 
-  splitChars($('[data-first]'), SITE.firstName, 0, 60);
-  splitChars($('[data-last]'), SITE.lastName, 220, 60);
+  splitChars($('[data-first]'), SITE.headingLeft, 0, 60);
+  splitChars($('[data-last]'), SITE.headingRight, 220, 60);
+  // Screen readers get the heading as one phrase
+  $('[data-first]').setAttribute('aria-label', `${SITE.headingLeft} ${SITE.headingRight}`);
+  $('[data-last]').setAttribute('aria-hidden', 'true');
 
   $('[data-role]').innerHTML = SITE.role
     .map((line) => `<span data-scramble>${line}</span>`)
@@ -166,6 +182,16 @@ function scramble(el, duration = 600) {
 }
 
 /* ---------------- intro sequence ---------------- */
+function imageRatio(src) {
+  if (!src) return Promise.resolve(1);
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img.naturalWidth / img.naturalHeight || 1);
+    img.onerror = () => resolve(1);
+    img.src = src;
+  });
+}
+
 async function intro() {
   const body = document.body;
   const portrait = $('.lp-portrait');
@@ -177,8 +203,13 @@ async function intro() {
     return;
   }
 
-  // 1. Full-screen portrait
-  Object.assign(portrait.style, { top: '0px', left: '0px', width: '100vw', height: '100vh' });
+  // 1. Full-screen portrait (photo scaled to cover the screen)
+  const [fx, fy, zoom] = SITE.portraitFocus || [50, 50, 100];
+  const ratio = await imageRatio(SITE.portrait); // width / height
+  const coverPct = Math.max(100, (innerHeight / innerWidth) * ratio * 100);
+  const bgStart = { backgroundSize: `${coverPct}% auto`, backgroundPosition: `50% ${fy}%` };
+  const bgEnd = { backgroundSize: `${zoom}% auto`, backgroundPosition: `${fx}% ${fy}%` };
+  Object.assign(portrait.style, { top: '0px', left: '0px', width: '100vw', height: '100vh' }, SITE.portrait ? bgStart : {});
   portrait.classList.add('is-intro');
   await wait(450);
 
@@ -187,8 +218,8 @@ async function intro() {
   const tilt = getComputedStyle(document.documentElement).getPropertyValue('--tilt').trim() || '8deg';
   const anim = portrait.animate(
     [
-      { top: '0px', left: '0px', width: `${innerWidth}px`, height: `${innerHeight}px`, borderRadius: '0px', transform: 'rotate(0deg)' },
-      { top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: '14px', transform: `rotate(${tilt})` },
+      { top: '0px', left: '0px', width: `${innerWidth}px`, height: `${innerHeight}px`, borderRadius: '0px', transform: 'rotate(0deg)', ...(SITE.portrait ? bgStart : {}) },
+      { top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: '14px', transform: `rotate(${tilt})`, ...(SITE.portrait ? bgEnd : {}) },
     ],
     { duration: 1000, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' }
   );
@@ -198,7 +229,8 @@ async function intro() {
   body.classList.add('names-in');
   await anim.finished;
   portrait.classList.remove('is-intro');
-  portrait.removeAttribute('style');
+  ['top', 'left', 'width', 'height'].forEach((p) => portrait.style.removeProperty(p));
+  if (SITE.portrait) Object.assign(portrait.style, bgEnd);
   anim.cancel();
 
   // 4. Bottom copy decodes in, then header, then the hand-drawn notes
