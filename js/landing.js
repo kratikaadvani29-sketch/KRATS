@@ -211,22 +211,22 @@ async function intro() {
   }
 
   // Timeline (ms from page start), measured frame-by-frame from the reference:
-  //   0     photo fills the screen ~4.5% zoomed in and eases out (300ms)
-  //   300   holds perfectly still
-  //   575   photo shrinks + tilts into its card (680ms): fast start, long soft landing
-  //   965   left word rises (whole word)
-  //   1165  right word rises
-  //   1815  bottom text scrambles in
-  //   2265  logo + menu icon
-  //   2565  hand-drawn notes
-  const T = { settle: 300, shrink: 575, shrinkFor: 680, names: 965, info: 1815, header: 2265, notes: 2565 };
+  //   0     photo fills the screen ~12% zoomed in and slowly eases out (1.1s)
+  //   1100  holds perfectly still, letting the photo breathe (0.7s)
+  //   1800  photo shrinks + tilts into its card (680ms): fast start, long soft landing
+  //   2190  left word rises (whole word)
+  //   2390  right word rises
+  //   3040  bottom text scrambles in
+  //   3490  logo + menu icon
+  //   3790  hand-drawn notes
+  const T = { settle: 1100, shrink: 1800, shrinkFor: 680, names: 2190, info: 3040, header: 3490, notes: 3790 };
   // 1. Full-screen portrait (photo scaled to cover the screen)
   const [fx, fy, zoom] = SITE.portraitFocus || [50, 50, 100];
   const ratio = await imageRatio(SITE.portrait); // width / height
   const W = innerWidth, H = innerHeight;
   const startImgW = Math.max(W, H * ratio); // photo width that covers the screen
   const bgStart = { backgroundSize: `${startImgW}px auto`, backgroundPosition: `50% ${SITE.portraitIntroY ?? fy}%` };
-  const INTRO_ZOOM = 1.045; // how far in the photo starts before settling
+  const INTRO_ZOOM = 1.12; // how far in the photo starts before settling
   const bgZoomed = { ...bgStart, backgroundSize: `${startImgW * INTRO_ZOOM}px auto` };
   Object.assign(portrait.style, { top: '0px', left: '0px', width: `${W}px`, height: `${H}px` }, SITE.portrait ? bgZoomed : {});
   portrait.classList.add('is-intro', 'is-playing');
@@ -235,7 +235,7 @@ async function intro() {
   const t0 = performance.now();
   const until = (ms) => wait(Math.max(0, ms - (performance.now() - t0)));
   const settle = SITE.portrait
-    ? portrait.animate([bgZoomed, bgStart], { duration: T.settle, easing: 'cubic-bezier(.25,.46,.45,.94)', fill: 'forwards' })
+    ? portrait.animate([bgZoomed, bgStart], { duration: T.settle, easing: 'cubic-bezier(.33,0,.15,1)', fill: 'forwards' })
     : null;
   if (SITE.portrait) Object.assign(portrait.style, bgStart);
   await until(T.shrink);
