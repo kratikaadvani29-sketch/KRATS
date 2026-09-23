@@ -127,7 +127,7 @@ body.show-header .lp-logo, body.show-header .lp-burger { opacity: 1; transform: 
 }
 body.names-in .lp-char > span {
   transform: none;
-  transition: transform .9s var(--ease-out);
+  transition: transform .45s cubic-bezier(.3, .9, .3, 1);
   transition-delay: var(--d, 0ms);
 }
 
@@ -151,15 +151,18 @@ body.names-in .lp-char > span {
   background: radial-gradient(120% 90% at 35% 40%, #d9d9d9 0%, #7a7a7a 38%, #262626 70%, #0d0d0d 100%);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   filter: grayscale(1);
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .35);
   z-index: 20;
   will-change: transform;
 }
 
-/* Intro state: the portrait covers the whole screen */
+/* Intro state: the portrait covers the whole screen (set in the HTML so
+   nothing else flashes before the script runs) */
 .lp-portrait.is-intro {
   position: fixed;
+  inset: 0;
   border-radius: 0;
   transform: none;
 }

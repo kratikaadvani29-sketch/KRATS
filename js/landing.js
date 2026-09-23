@@ -89,8 +89,8 @@ function render() {
   }
   $('[data-logo]').innerHTML = `${SITE.logo}<sup>®</sup>`;
 
-  splitChars($('[data-first]'), SITE.headingLeft, 0, 60);
-  splitChars($('[data-last]'), SITE.headingRight, 220, 60);
+  splitChars($('[data-first]'), SITE.headingLeft, 0, 18);
+  splitChars($('[data-last]'), SITE.headingRight, 200, 18);
   // Screen readers get the heading as one phrase
   $('[data-first]').setAttribute('aria-label', `${SITE.headingLeft} ${SITE.headingRight}`);
   $('[data-last]').setAttribute('aria-hidden', 'true');
@@ -200,34 +200,50 @@ async function intro() {
   const slot = $('.lp-portrait-slot');
 
   if (reduceMotion) {
+    portrait.classList.remove('is-intro');
     body.classList.add('names-in', 'info-in', 'show-header', 'notes-in');
     body.classList.remove('is-loading');
     return;
   }
 
+  // Timeline (ms from page start), matched to the reference recording:
+  //   0     photo fills the screen, still
+  //   400   photo shrinks + tilts into its card (600ms)
+  //   800   left word rises (whole word, ~250ms)
+  //   1000  right word rises; photo has landed
+  //   1650  bottom text scrambles in
+  //   2100  logo + menu icon
+  //   2400  hand-drawn notes
+  const T = { shrink: 400, shrinkFor: 600, names: 800, info: 1650, header: 2100, notes: 2400 };
+  const t0 = performance.now();
+  const until = (ms) => wait(Math.max(0, ms - (performance.now() - t0)));
+
   // 1. Full-screen portrait (photo scaled to cover the screen)
   const [fx, fy, zoom] = SITE.portraitFocus || [50, 50, 100];
   const ratio = await imageRatio(SITE.portrait); // width / height
-  const coverPct = Math.max(100, (innerHeight / innerWidth) * ratio * 100);
-  const bgStart = { backgroundSize: `${coverPct}% auto`, backgroundPosition: `50% ${SITE.portraitIntroY ?? fy}%` };
-  const bgEnd = { backgroundSize: `${zoom}% auto`, backgroundPosition: `${fx}% ${fy}%` };
-  Object.assign(portrait.style, { top: '0px', left: '0px', width: '100vw', height: '100vh' }, SITE.portrait ? bgStart : {});
+  const W = innerWidth, H = innerHeight;
+  const startImgW = Math.max(W, H * ratio); // photo width that covers the screen
+  const bgStart = { backgroundSize: `${startImgW}px auto`, backgroundPosition: `50% ${SITE.portraitIntroY ?? fy}%` };
+  Object.assign(portrait.style, { top: '0px', left: '0px', width: `${W}px`, height: `${H}px` }, SITE.portrait ? bgStart : {});
   portrait.classList.add('is-intro');
-  await wait(450);
+  await until(T.shrink);
 
-  // 2. Shrink + tilt into its slot
+  // 2. Shrink + tilt into its slot. The photo is sized in px so it scales
+  //    down together with the frame instead of zooming inside it.
   const r = slot.getBoundingClientRect();
   const tilt = getComputedStyle(document.documentElement).getPropertyValue('--tilt').trim() || '8deg';
+  const bgEndPx = { backgroundSize: `${(zoom / 100) * r.width}px auto`, backgroundPosition: `${fx}% ${fy}%` };
+  const bgEnd = { backgroundSize: `${zoom}% auto`, backgroundPosition: `${fx}% ${fy}%` };
   const anim = portrait.animate(
     [
-      { top: '0px', left: '0px', width: `${innerWidth}px`, height: `${innerHeight}px`, borderRadius: '0px', transform: 'rotate(0deg)', ...(SITE.portrait ? bgStart : {}) },
-      { top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: '14px', transform: `rotate(${tilt})`, ...(SITE.portrait ? bgEnd : {}) },
+      { top: '0px', left: '0px', width: `${W}px`, height: `${H}px`, borderRadius: '0px', transform: 'rotate(0deg)', ...(SITE.portrait ? bgStart : {}) },
+      { top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: '14px', transform: `rotate(${tilt})`, ...(SITE.portrait ? bgEndPx : {}) },
     ],
-    { duration: 1000, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' }
+    { duration: T.shrinkFor, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' }
   );
 
-  // 3. Letters rise while the portrait lands
-  await wait(550);
+  // 3. Words rise while the portrait lands (right word is delayed via --d)
+  await until(T.names);
   body.classList.add('names-in');
   await anim.finished;
   portrait.classList.remove('is-intro');
@@ -235,13 +251,13 @@ async function intro() {
   if (SITE.portrait) Object.assign(portrait.style, bgEnd);
   anim.cancel();
 
-  // 4. Bottom copy decodes in, then header, then the hand-drawn notes
-  await wait(250);
+  // 4. Bottom copy decodes in (both sides together), then header, then notes
+  await until(T.info);
   body.classList.add('info-in');
-  $$('.lp-info [data-scramble]').forEach((el, i) => setTimeout(() => scramble(el, 500 + i * 40), i * 60));
-  await wait(700);
+  $$('.lp-info [data-scramble]').forEach((el, i) => setTimeout(() => scramble(el, 260), i * 15));
+  await until(T.header);
   body.classList.add('show-header');
-  await wait(300);
+  await until(T.notes);
   body.classList.add('notes-in');
   body.classList.remove('is-loading');
 }
