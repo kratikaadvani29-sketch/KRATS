@@ -207,14 +207,14 @@ async function intro() {
   }
 
   // Timeline (ms from page start), matched to the reference recording:
-  //   0     photo fills the screen, still
-  //   400   photo shrinks + tilts into its card (600ms)
+  //   0     photo fills the screen slightly zoomed in, settles out (350ms), then holds
+  //   450   photo shrinks + tilts into its card (600ms)
   //   800   left word rises (whole word, ~250ms)
   //   1000  right word rises; photo has landed
   //   1650  bottom text scrambles in
   //   2100  logo + menu icon
   //   2400  hand-drawn notes
-  const T = { shrink: 400, shrinkFor: 600, names: 800, info: 1650, header: 2100, notes: 2400 };
+  const T = { settle: 350, shrink: 450, shrinkFor: 600, names: 800, info: 1650, header: 2100, notes: 2400 };
   const t0 = performance.now();
   const until = (ms) => wait(Math.max(0, ms - (performance.now() - t0)));
 
@@ -224,12 +224,19 @@ async function intro() {
   const W = innerWidth, H = innerHeight;
   const startImgW = Math.max(W, H * ratio); // photo width that covers the screen
   const bgStart = { backgroundSize: `${startImgW}px auto`, backgroundPosition: `50% ${SITE.portraitIntroY ?? fy}%` };
-  Object.assign(portrait.style, { top: '0px', left: '0px', width: `${W}px`, height: `${H}px` }, SITE.portrait ? bgStart : {});
-  portrait.classList.add('is-intro');
+  const INTRO_ZOOM = 1.1; // how far in the photo starts before settling
+  const bgZoomed = { ...bgStart, backgroundSize: `${startImgW * INTRO_ZOOM}px auto` };
+  Object.assign(portrait.style, { top: '0px', left: '0px', width: `${W}px`, height: `${H}px` }, SITE.portrait ? bgZoomed : {});
+  portrait.classList.add('is-intro', 'is-playing');
+  const settle = SITE.portrait
+    ? portrait.animate([bgZoomed, bgStart], { duration: T.settle, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' })
+    : null;
+  if (SITE.portrait) Object.assign(portrait.style, bgStart);
   await until(T.shrink);
 
   // 2. Shrink + tilt into its slot. The photo is sized in px so it scales
   //    down together with the frame instead of zooming inside it.
+  if (settle) settle.cancel(); // inline style already holds its end state
   const r = slot.getBoundingClientRect();
   const tilt = getComputedStyle(document.documentElement).getPropertyValue('--tilt').trim() || '8deg';
   const bgEndPx = { backgroundSize: `${(zoom / 100) * r.width}px auto`, backgroundPosition: `${fx}% ${fy}%` };

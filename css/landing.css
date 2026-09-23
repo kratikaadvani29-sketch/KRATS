@@ -166,6 +166,13 @@ body.names-in .lp-char > span {
   border-radius: 0;
   transform: none;
 }
+/* Keep the photo hidden until the intro script takes over, so it never
+   jumps from the card crop to the full-screen crop */
+.lp-portrait.is-intro:not(.is-playing) {
+  background-image: none !important;
+  background-color: var(--bg);
+  box-shadow: none;
+}
 
 /* ---------------- Info rows ---------------- */
 .lp-info {
