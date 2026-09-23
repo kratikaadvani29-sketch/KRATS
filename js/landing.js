@@ -16,7 +16,7 @@ const SITE = {
   // portraitFocus is the crop inside the card: [x%, y%, zoom%]
   // portraitIntroY moves the photo up/down on the full-screen intro (higher % = face sits higher)
   portrait: 'images/portrait.jpg',
-  portraitFocus: [57, 56, 200],
+  portraitFocus: [52, 61, 200],
   portraitIntroY: 68,
 
   // Each entry is one line in the bottom-left block
