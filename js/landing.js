@@ -188,7 +188,11 @@ function imageRatio(src) {
   if (!src) return Promise.resolve(1);
   return new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => resolve(img.naturalWidth / img.naturalHeight || 1);
+    img.onload = () => {
+      const r = img.naturalWidth / img.naturalHeight || 1;
+      // wait until it's decoded so it paints on the very first frame
+      (img.decode ? img.decode() : Promise.resolve()).then(() => resolve(r), () => resolve(r));
+    };
     img.onerror = () => resolve(1);
     img.src = src;
   });
@@ -206,30 +210,32 @@ async function intro() {
     return;
   }
 
-  // Timeline (ms from page start), matched to the reference recording:
-  //   0     photo fills the screen slightly zoomed in, settles out (350ms), then holds
-  //   450   photo shrinks + tilts into its card (600ms)
-  //   800   left word rises (whole word, ~250ms)
-  //   1000  right word rises; photo has landed
-  //   1650  bottom text scrambles in
-  //   2100  logo + menu icon
-  //   2400  hand-drawn notes
-  const T = { settle: 350, shrink: 450, shrinkFor: 600, names: 800, info: 1650, header: 2100, notes: 2400 };
-  const t0 = performance.now();
-  const until = (ms) => wait(Math.max(0, ms - (performance.now() - t0)));
-
+  // Timeline (ms from page start), measured frame-by-frame from the reference:
+  //   0     photo fills the screen ~4.5% zoomed in and eases out (300ms)
+  //   300   holds perfectly still
+  //   575   photo shrinks + tilts into its card (680ms): fast start, long soft landing
+  //   965   left word rises (whole word)
+  //   1165  right word rises
+  //   1815  bottom text scrambles in
+  //   2265  logo + menu icon
+  //   2565  hand-drawn notes
+  const T = { settle: 300, shrink: 575, shrinkFor: 680, names: 965, info: 1815, header: 2265, notes: 2565 };
   // 1. Full-screen portrait (photo scaled to cover the screen)
   const [fx, fy, zoom] = SITE.portraitFocus || [50, 50, 100];
   const ratio = await imageRatio(SITE.portrait); // width / height
   const W = innerWidth, H = innerHeight;
   const startImgW = Math.max(W, H * ratio); // photo width that covers the screen
   const bgStart = { backgroundSize: `${startImgW}px auto`, backgroundPosition: `50% ${SITE.portraitIntroY ?? fy}%` };
-  const INTRO_ZOOM = 1.1; // how far in the photo starts before settling
+  const INTRO_ZOOM = 1.045; // how far in the photo starts before settling
   const bgZoomed = { ...bgStart, backgroundSize: `${startImgW * INTRO_ZOOM}px auto` };
   Object.assign(portrait.style, { top: '0px', left: '0px', width: `${W}px`, height: `${H}px` }, SITE.portrait ? bgZoomed : {});
   portrait.classList.add('is-intro', 'is-playing');
+  // The clock starts on the first frame the photo is actually on screen
+  await new Promise((r) => requestAnimationFrame(r));
+  const t0 = performance.now();
+  const until = (ms) => wait(Math.max(0, ms - (performance.now() - t0)));
   const settle = SITE.portrait
-    ? portrait.animate([bgZoomed, bgStart], { duration: T.settle, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' })
+    ? portrait.animate([bgZoomed, bgStart], { duration: T.settle, easing: 'cubic-bezier(.25,.46,.45,.94)', fill: 'forwards' })
     : null;
   if (SITE.portrait) Object.assign(portrait.style, bgStart);
   await until(T.shrink);
@@ -246,7 +252,7 @@ async function intro() {
       { top: '0px', left: '0px', width: `${W}px`, height: `${H}px`, borderRadius: '0px', transform: 'rotate(0deg)', ...(SITE.portrait ? bgStart : {}) },
       { top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: '14px', transform: `rotate(${tilt})`, ...(SITE.portrait ? bgEndPx : {}) },
     ],
-    { duration: T.shrinkFor, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' }
+    { duration: T.shrinkFor, easing: 'cubic-bezier(.2,.3,.3,1)', fill: 'forwards' }
   );
 
   // 3. Words rise while the portrait lands (right word is delayed via --d)
