@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kratika Advani — Designer</title>
+  <meta name="description" content="Portfolio home page." />
+  <link rel="preload" href="fonts/anton-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/landing-fonts.css" />
+  <link rel="stylesheet" href="css/landing.css" />
+</head>
+<body class="is-loading">
+  <!-- ===================== HEADER ===================== -->
+  <header class="lp-header">
+    <a href="#" class="lp-logo" data-logo aria-label="Home">K–A<sup>®</sup></a>
+    <button class="lp-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="lp-menu">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <main class="lp-hero">
+    <div class="lp-name-row">
+      <h1 class="lp-name lp-name--first" data-first>FIRST</h1>
+
+      <div class="lp-portrait-slot" aria-hidden="true">
+        <div class="lp-portrait"></div>
+      </div>
+
+      <div class="lp-name-wrap">
+        <p class="lp-name lp-name--last" data-last>LAST</p>
+        <!-- Project previews shown while hovering a service -->
+        <div class="lp-preview" data-preview aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="lp-info">
+      <div class="lp-info__left">
+        <p class="lp-lines" data-role></p>
+        <p class="lp-lines">
+          <span data-scramble data-location></span><br />
+          <a data-scramble data-email href="#"></a>
+        </p>
+        <span class="lp-note lp-note--contact" aria-hidden="true">
+          <svg viewBox="0 0 40 30" width="30" height="24"><path d="M38 4C24 3 12 10 6 26M6 26l-3-8M6 26l8-4" /></svg>
+          <em>(contact me)</em>
+        </span>
+      </div>
+
+      <div class="lp-info__right">
+        <ul class="lp-services" data-services aria-label="Services"></ul>
+        <span class="lp-note lp-note--hover" aria-hidden="true">
+          <em>(hover us)</em>
+          <svg viewBox="0 0 40 30" width="30" height="24"><path d="M2 26C18 27 30 20 34 4M34 4l-7 5M34 4l2 9" /></svg>
+        </span>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== MENU ===================== -->
+  <div class="lp-backdrop" data-close></div>
+  <aside class="lp-menu" id="lp-menu" aria-hidden="true">
+    <nav class="lp-menu__nav" data-nav aria-label="Primary"></nav>
+    <div class="lp-menu__foot">
+      <div class="lp-socials" data-socials></div>
+      <p class="lp-copy" data-copy></p>
+    </div>
+  </aside>
+
+  <script src="js/landing.js"></script>
+</body>
+</html>

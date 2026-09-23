@@ -44,3 +44,14 @@ js/main.js      # SITE content config + rendering, clock, cursor, scroll-spy
   them under an `images/` folder and swap the relevant `background`/`<img>` in the
   markup or CSS.
 - Layout is responsive down to phone width; decorative floating pieces hide on small screens.
+
+## Bold-type home page (`landing.html`)
+
+A separate page with its own intro animation: a full-screen portrait shrinks
+into a tilted card, the name rises in letter by letter, and hovering a service
+shows a project image inside the last name. It has a slide-in menu.
+
+Edit the `SITE` object at the top of **`js/landing.js`** to change the name,
+tagline, email, services, menu links, and socials. Set `portrait` and each
+service's `image` to files under `images/` to replace the placeholders.
+Styles live in `css/landing.css`.

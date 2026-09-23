@@ -1,0 +1,383 @@
+/* ============================================================
+   landing.css — bold-type home page (landing.html)
+   ============================================================ */
+
+:root {
+  --bg: #e4e2dc;
+  --ink: #1a1a9e;          /* brand blue */
+  --paper: #ffffff;
+  --pad: clamp(16px, 1.8vw, 28px);
+  --ease: cubic-bezier(.76, 0, .24, 1);
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --tilt: 8deg;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter Tight', system-ui, sans-serif;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; margin: 0; padding: 0; }
+p { margin: 0; }
+
+/* ---------------- Header ---------------- */
+.lp-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--pad);
+  pointer-events: none;
+}
+.lp-header > * { pointer-events: auto; }
+
+.lp-logo {
+  font-family: 'Anton', sans-serif;
+  font-size: 22px;
+  letter-spacing: .02em;
+  line-height: 1;
+}
+.lp-logo sup { font-family: 'Inter Tight', sans-serif; font-size: .55em; vertical-align: .55em; }
+
+.lp-burger {
+  position: relative;
+  width: 34px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+.lp-burger span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: currentColor;
+  transition: transform .5s var(--ease), color .3s;
+}
+.lp-burger span:first-child { top: 6px; }
+.lp-burger span:last-child { top: 14px; }
+.lp-burger:hover span:first-child { transform: translateY(-2px); }
+.lp-burger:hover span:last-child { transform: translateY(2px); }
+
+body.menu-open .lp-burger { color: var(--paper); }
+body.menu-open .lp-burger span:first-child { transform: translateY(4px) rotate(45deg); }
+body.menu-open .lp-burger span:last-child { transform: translateY(-4px) rotate(-45deg); }
+
+/* Header appears after the intro */
+.lp-logo, .lp-burger { opacity: 0; transform: translateY(-8px); transition: opacity .6s, transform .6s var(--ease-out); }
+body.show-header .lp-logo, body.show-header .lp-burger { opacity: 1; transform: none; }
+
+/* ---------------- Hero ---------------- */
+.lp-hero {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  padding: 0 var(--pad);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: filter .6s var(--ease);
+}
+
+.lp-name-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2vw;
+  margin-top: 6vh;
+}
+
+.lp-name {
+  margin: 0;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: 20vw;          /* JS fits this to the viewport */
+  line-height: .78;
+  letter-spacing: -.005em;
+  white-space: nowrap;
+  display: flex;
+  /* trim Anton's built-in top space so the letters sit flush */
+  padding-top: .04em;
+}
+
+/* Each letter lives in a mask and rises in during the intro */
+.lp-char {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: .02em;
+}
+.lp-char > span {
+  display: inline-block;
+  transform: translateY(135%);
+}
+body.names-in .lp-char > span {
+  transform: none;
+  transition: transform .9s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+
+.lp-name-wrap { position: relative; }
+
+/* ---------------- Portrait ---------------- */
+.lp-portrait-slot {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--portrait, 19vw);
+  aspect-ratio: 1 / 1.02;
+  align-self: center;
+}
+
+.lp-portrait {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  transform: rotate(var(--tilt));
+  /* Placeholder until SITE.portrait is set in js/landing.js */
+  background: radial-gradient(120% 90% at 35% 40%, #d9d9d9 0%, #7a7a7a 38%, #262626 70%, #0d0d0d 100%);
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(1);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .35);
+  z-index: 20;
+  will-change: transform;
+}
+
+/* Intro state: the portrait covers the whole screen */
+.lp-portrait.is-intro {
+  position: fixed;
+  border-radius: 0;
+  transform: none;
+}
+
+/* ---------------- Info rows ---------------- */
+.lp-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: clamp(14px, 1.8vw, 26px);
+  font-size: clamp(12px, 1vw, 15px);
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: -.005em;
+}
+
+.lp-info__left, .lp-info__right { position: relative; }
+.lp-info__right { text-align: right; }
+
+.lp-lines + .lp-lines { margin-top: 1.25em; }
+.lp-lines a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.lp-info [data-scramble], .lp-info [data-role] > span, .lp-services li {
+  opacity: 0;
+}
+body.info-in .lp-info [data-scramble],
+body.info-in .lp-info [data-role] > span,
+body.info-in .lp-services li { opacity: 1; }
+
+.lp-services li {
+  cursor: default;
+  transition: opacity .3s;
+}
+.lp-services li span {
+  display: inline-block;
+  transition: transform .45s var(--ease-out);
+}
+.lp-services li:hover span { transform: translateX(-6px); }
+.lp-services:hover li:not(:hover) { opacity: .45; }
+
+/* ---------------- Handwritten notes ---------------- */
+.lp-note {
+  position: absolute;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 4px;
+  font-family: 'Caveat', cursive;
+  font-weight: 500;
+  font-size: clamp(14px, 1.15vw, 18px);
+  text-transform: none;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.lp-note em { font-style: normal; transform: rotate(-3deg); opacity: 0; transition: opacity .6s .35s; }
+.lp-note svg { flex: 0 0 auto; }
+.lp-note path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  transition: stroke-dashoffset .8s var(--ease);
+}
+body.notes-in .lp-note em { opacity: 1; }
+body.notes-in .lp-note path { stroke-dashoffset: 0; }
+
+.lp-note--contact { left: calc(100% - 3.2em); top: 2.7em; }
+.lp-note--contact em { margin-bottom: 1.1em; }
+.lp-note--hover { right: 6.5em; top: calc(100% + .1em); }
+.lp-note--hover em { margin-top: 1em; align-self: flex-end; }
+.lp-note--hover { align-items: flex-start; }
+
+/* ---------------- Service preview (inside last name) ---------------- */
+.lp-preview {
+  position: absolute;
+  left: 2%;
+  bottom: 0;
+  width: 7.6vw;
+  aspect-ratio: 105 / 130;
+  border-radius: 6px;
+  overflow: hidden;
+  pointer-events: none;
+  clip-path: inset(100% 0 0 0 round 6px);
+  transition: clip-path .55s var(--ease);
+}
+.lp-preview.is-on { clip-path: inset(0 0 0 0 round 6px); }
+
+.lp-preview__img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: translateY(100%) scale(1.15);
+  transition: transform .6s var(--ease);
+}
+.lp-preview__img.is-active { transform: none; z-index: 2; }
+.lp-preview__img.is-leaving { transform: translateY(-30%) scale(1.05); z-index: 1; }
+
+/* ---------------- Menu ---------------- */
+.lp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 24;
+  background: rgba(26, 26, 158, .08);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .6s var(--ease), backdrop-filter .6s var(--ease), -webkit-backdrop-filter .6s var(--ease);
+}
+body.menu-open .lp-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.lp-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 26;
+  width: clamp(300px, 29vw, 460px);
+  padding: calc(var(--pad) + 44px) calc(var(--pad) + 10px) var(--pad);
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform: translateX(calc(100% + 140px));
+  transition: transform .8s var(--ease);
+}
+/* Curved leading edge that flattens as the panel settles */
+.lp-menu::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  right: calc(100% - 1px);
+  width: 140px;
+  background: var(--ink);
+  border-radius: 100% 0 0 100% / 50% 0 0 50%;
+  transform-origin: right center;
+  transform: scaleX(1);
+  transition: transform .8s var(--ease);
+}
+body.menu-open .lp-menu { transform: none; }
+body.menu-open .lp-menu::before { transform: scaleX(0); }
+
+.lp-menu__nav a {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, .22);
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: clamp(26px, 2.5vw, 38px);
+  line-height: 1.05;
+  overflow: hidden;
+}
+.lp-menu__nav a > span:first-child {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform .7s var(--ease-out), letter-spacing .4s var(--ease-out);
+  transition-delay: 0ms;
+}
+.lp-menu__nav a small {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity .4s;
+}
+body.menu-open .lp-menu__nav a > span:first-child { transform: none; transition-delay: var(--d, 0ms); }
+body.menu-open .lp-menu__nav a small { opacity: .6; transition-delay: calc(var(--d, 0ms) + 200ms); }
+.lp-menu__nav a:hover > span:first-child { letter-spacing: .03em; }
+
+.lp-menu__foot {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.lp-socials { display: flex; gap: 8px; margin-bottom: 22px; }
+.lp-socials a {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink);
+  transition: transform .3s var(--ease-out);
+}
+.lp-socials a:hover { transform: translateY(-3px); }
+.lp-socials svg { width: 14px; height: 14px; fill: currentColor; }
+.lp-copy { opacity: .7; }
+
+/* ---------------- Small screens ---------------- */
+@media (max-width: 760px) {
+  body { overflow-y: auto; }
+  .lp-hero { height: auto; min-height: 100dvh; justify-content: flex-start; padding-top: 90px; padding-bottom: 40px; }
+  .lp-name-row { flex-direction: column; align-items: flex-start; gap: 18px; margin-top: 0; }
+  .lp-name-wrap { align-self: flex-end; }
+  .lp-portrait-slot { --portrait: 46vw; align-self: center; }
+  .lp-preview { width: 22vw; }
+  .lp-info { flex-direction: column; gap: 28px; font-size: 13px; }
+  .lp-info__right { align-self: flex-end; }
+  .lp-note--contact { position: static; margin-top: 10px; }
+  .lp-note--contact svg { transform: scaleX(-1) rotate(180deg); }
+}
+
+/* ---------------- Reduced motion ---------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0ms !important; }
+}
